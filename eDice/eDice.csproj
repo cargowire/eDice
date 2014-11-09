@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{DDDED4DD-68E6-4C4F-A10B-B29E9ECBAF35}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>eDice</RootNamespace>
+    <AssemblyName>eDice</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Kernel32.cs" />
+    <Compile Include="DiceState.cs" />
+    <Compile Include="eDice.cs" />
+    <Compile Include="eDiceMessageFilter.cs" />
+    <Compile Include="eDiceRegistration.cs" />
+    <Compile Include="HookType.cs" />
+    <Compile Include="RegistrationException.cs" />
+    <Compile Include="SDK\DICE_STATE.cs" />
+    <Compile Include="SDK\Vrlib.cs" />
+    <Compile Include="SDK\EDICE_CONNECT_INFOR.cs" />
+    <Compile Include="SDK\EDICE_DISCONNECT_INFOR.cs" />
+    <Compile Include="SDK\EDICE_END_PAIRING_INFOR.cs" />
+    <Compile Include="SDK\EDICE_PAIRING_INFOR.cs" />
+    <Compile Include="SDK\EDICE_START_PAIRING_INFOR.cs" />
+    <Compile Include="SDK\EDICE_STATE_INFOR.cs" />
+    <Compile Include="SDK\EDICE_STATE_TYPE.cs" />
+    <Compile Include="SDK\INTERACTION_TYPE.cs" />
+    <Compile Include="SDK\MESSAGE_HEADER.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SDK\VR_MESSAGE_INFORMATION.cs" />
+    <Compile Include="User32.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
