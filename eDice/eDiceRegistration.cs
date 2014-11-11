@@ -6,7 +6,7 @@ using eDice.SDK;
 
 namespace eDice
 {
-    public class eDiceRegistration : IDisposable
+    public class eDiceRegistration : IDiceRegistration
     {
         private IntPtr registrationHandle;
 
@@ -29,13 +29,7 @@ namespace eDice
         /// </summary>
         public event EventHandler DiceShaken = delegate { }; 
 
-        internal IntPtr oldWindowProc { get; set; }
-
-        internal IntPtr ReplacedWndProcMessageReceived(IntPtr hwnd, uint uMsg, IntPtr wParam, IntPtr lParam)
-        {
-            this.HandleMessage(unchecked((int)uMsg), wParam, lParam);
-            return User32.CallWindowProc(oldWindowProc, hwnd, uMsg, wParam, lParam);
-        }
+        public int LastDiceRoll { get; private set; }
 
         internal IntPtr HookMessage(int message, IntPtr wParam, IntPtr lParam)
         {
@@ -86,6 +80,7 @@ namespace eDice
                                 ptr = (IntPtr)((int)ptr + structSize);
 
                                 this.DiceRolled(this, new DiceState() { Value = innerStructs[0].value });
+                                LastDiceRoll = innerStructs[0].value;
                             }
                         }
                         finally

@@ -9,7 +9,7 @@ namespace eDice.TestHarness
     partial class DiceValueForm
     {
         private IContainer components = null;
-        private eDiceRegistration registration;
+        private IDiceRegistration registration;
 
         protected override void OnLoad(System.EventArgs e)
         {

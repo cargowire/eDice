@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="eDiceRegistrationWndProc.cs" />
+    <Compile Include="IDiceRegistration.cs" />
     <Compile Include="Kernel32.cs" />
     <Compile Include="DiceState.cs" />
     <Compile Include="eDice.cs" />

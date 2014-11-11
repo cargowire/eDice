@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
@@ -8,7 +9,9 @@ namespace eDice
 {
     public class eDice
     {
-        public static eDiceRegistration Register()
+        private static Dictionary<IntPtr, eDiceRegistrationWndProc> registrations = new Dictionary<IntPtr, eDiceRegistrationWndProc>();
+
+        public static IDiceRegistration Register()
         {
             // var window = GetForegroundWindow(); 
             // GetForegroundWindow does not appear to give the correct result so we enumerate
@@ -46,13 +49,26 @@ namespace eDice
                checked((int)Kernel32.GetCurrentThreadId()));
             User32.UnhookWindowsHookEx(hook);*/
             // Unfortunately WindowsHook's don't appear to pick up on the values sent via Vrlib.dll
-
-            int newWndProc = Marshal.GetFunctionPointerForDelegate(
-                (User32.WndProcDelegate)registration.ReplacedWndProcMessageReceived).ToInt32();
+            
+            var newWndProc = Marshal.GetFunctionPointerForDelegate(
+                (User32.WndProcDelegate)ReplacedWndProcMessageReceived).ToInt32();
             var result = User32.SetWindowLong(window, (int)User32.WindowLongFlags.GWL_WNDPROC, newWndProc);
-            registration.oldWindowProc = (IntPtr)result;
 
-            return registration;
+            if (!registrations.ContainsKey(window))
+            {
+                registrations.Add(
+                    window,
+                    new eDiceRegistrationWndProc(new IntPtr(result), w => registrations.Remove(w), registration));
+            }
+
+            return registrations[window];
+        }        
+
+        internal static IntPtr ReplacedWndProcMessageReceived(IntPtr hwnd, uint uMsg, IntPtr wParam, IntPtr lParam)
+        {
+            var registration = registrations[hwnd];
+            registration.HandleMessage((int)uMsg, wParam, lParam);
+            return User32.CallWindowProc(registration.WndProc, hwnd, uMsg, wParam, lParam);
         }
 
         public static eDiceRegistration Register(IntPtr hWnd)
