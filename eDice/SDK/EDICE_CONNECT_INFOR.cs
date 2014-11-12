@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace eDice.SDK
 {
@@ -12,7 +13,8 @@ namespace eDice.SDK
     [StructLayout(LayoutKind.Sequential)]
     internal class EDICE_CONNECT_INFOR
     {
-        int num;
-        //TODO: int id[0];
+        public int num;
+
+        public IntPtr id;
     }
 }

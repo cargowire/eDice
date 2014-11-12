@@ -27,9 +27,13 @@ namespace eDice
         /// <summary>
         /// The device has been shaken
         /// </summary>
-        public event EventHandler DiceShaken = delegate { }; 
+        public event EventHandler DiceShaken = delegate { };
 
-        public int LastDiceRoll { get; private set; }
+        public event EventHandler<DiceState> DicePower = delegate { };
+
+        public event EventHandler<DiceState> DiceConnect = delegate { };
+
+        public event EventHandler<DiceState> DiceDisconnect = delegate { };
 
         internal IntPtr HookMessage(int message, IntPtr wParam, IntPtr lParam)
         {
@@ -46,106 +50,123 @@ namespace eDice
             return new IntPtr(User32.CallNextHookEx(IntPtr.Zero, message, wParam, lParam));
         }
 
+        public void StartMatch()
+        {
+            var structSize = Marshal.SizeOf(typeof(EDICE_START_PAIRING_INFOR));
+            EDICE_START_PAIRING_INFOR startInfo;
+		    startInfo.id = -1;
+
+            IntPtr startInfoPtr = Marshal.AllocHGlobal(structSize);
+            Marshal.StructureToPtr(startInfo, startInfoPtr, false);
+
+            Vrlib.SetInteractionState(
+                this.registrationHandle,
+                (uint)EDICE_STATE_TYPE.EDICE_START_PAIRING,
+                startInfoPtr,
+                (uint)structSize);
+        }
+
         public bool HandleMessage(int message, IntPtr wParam, IntPtr lParam)
         {
             if (message == Vrlib.WM_EDICE)
             {
-                switch ((uint)wParam)
+                uint size = 1024;
+                IntPtr info = IntPtr.Zero;
+
+                info = Marshal.AllocHGlobal(1024);
+                Vrlib.GetInteractionMessageInfo(lParam, info, ref size);
+
+                var structInfo = (VR_MESSAGE_INFORMATION)Marshal.PtrToStructure(info, typeof(VR_MESSAGE_INFORMATION));
+                var dataOffset = Marshal.OffsetOf(typeof(VR_MESSAGE_INFORMATION), "data");
+                var dataPtr = new IntPtr(info.ToInt32() + dataOffset.ToInt32());
+
+                try
                 {
-                    case (uint)EDICE_STATE_TYPE.EDICE_ROLLED:
+                    switch ((uint)wParam)
                     {
-                        uint size = 1024;
-                        IntPtr info = IntPtr.Zero;
-
-                        try
-                        {
-                            info = Marshal.AllocHGlobal(1024);
-                            Vrlib.GetInteractionMessageInfo(lParam, info, ref size);
-
-                            var structInfo =
-                                (VR_MESSAGE_INFORMATION)Marshal.PtrToStructure(info, typeof(VR_MESSAGE_INFORMATION));
-
-                            var pState = structInfo.data;
-
-                            var offset1 = Marshal.OffsetOf(typeof(VR_MESSAGE_INFORMATION), "data");
-                            var offset2 = Marshal.OffsetOf(typeof(EDICE_STATE_INFOR), "states");
-
-                            var ptr = new IntPtr(info.ToInt32() + offset1.ToInt32());
-                            ptr = new IntPtr(ptr.ToInt32() + offset2.ToInt32());
-                            var structSize = Marshal.SizeOf(typeof(DICE_STATE));
-                            var innerStructs = new List<DICE_STATE>();
-                            for (int i = 0; i < pState.num; i++)
+                        case (uint)EDICE_STATE_TYPE.EDICE_ROLLED:
                             {
-                                innerStructs.Add((DICE_STATE)Marshal.PtrToStructure(ptr, typeof(DICE_STATE)));
-                                ptr = (IntPtr)((int)ptr + structSize);
+                                var pState = (EDICE_STATE_INFOR)Marshal.PtrToStructure(dataPtr, typeof(EDICE_STATE_INFOR));
+                                var statesOffset = Marshal.OffsetOf(typeof(EDICE_STATE_INFOR), "states");
 
-                                this.DiceRolled(this, new DiceState() { Value = innerStructs[0].value });
-                                LastDiceRoll = innerStructs[0].value;
+                                var statePtr = new IntPtr(dataPtr.ToInt32() + statesOffset.ToInt32());
+                                var structSize = Marshal.SizeOf(typeof(DICE_STATE));
+                                var innerStructs = new List<DICE_STATE>();
+                                for (int i = 0; i < pState.num; i++)
+                                {
+                                    innerStructs.Add((DICE_STATE)Marshal.PtrToStructure(statePtr, typeof(DICE_STATE)));
+                                    statePtr = (IntPtr)((int)statePtr + structSize);
+
+                                    this.DiceRolled(this, new DiceState() { Value = innerStructs[0].value });
+                                }
+
+                                //System.Diagnostics.Debug.WriteLine(
+                                //    string.Format("E-Dice rolled ID %d, value%d ",
+                                //        states[i].id, states[i].value));
+                                //    EdiceMatchValue(pState->states[i].id);
+                                //    m_listEDice.InsertString(-1,sText);
+                                break;
                             }
-                        }
-                        finally
-                        {
-                            Marshal.FreeHGlobal(info);
-                        }
+                        case (uint)EDICE_STATE_TYPE.EDICE_SHAKE:
+                            {
+                                this.DiceShaken(this, EventArgs.Empty);
 
-                        //System.Diagnostics.Debug.WriteLine(
-                        //    string.Format("E-Dice rolled ID %d, value%d ",
-                        //        states[i].id, states[i].value));
-                        //    EdiceMatchValue(pState->states[i].id);
-                        //    m_listEDice.InsertString(-1,sText);
-                        break;
-                    }
-                    case (uint)EDICE_STATE_TYPE.EDICE_SHAKE:
-                    {
-                        this.DiceShaken(this, EventArgs.Empty);
+                                //PEDICE_STATE_INFOR pState = (PEDICE_STATE_INFOR)info->data;
+                                //for(int i = 0 ;i < pState->num; i++)
+                                //{
+                                //    sText.Format(L"E-Dice shake ID %d, power %d",pState->states[i].id,pState->states[i].power);
+                                //    m_listEDice.InsertString(-1,sText);
 
-                        //PEDICE_STATE_INFOR pState = (PEDICE_STATE_INFOR)info->data;
-                        //for(int i = 0 ;i < pState->num; i++)
-                        //{
-                        //    sText.Format(L"E-Dice shake ID %d, power %d",pState->states[i].id,pState->states[i].power);
-                        //    m_listEDice.InsertString(-1,sText);
+                                //}
+                                break;
+                            }
+                        case (uint)EDICE_STATE_TYPE.EDICE_DROP:
+                            {
+                                //PEDICE_STATE_INFOR pState = (PEDICE_STATE_INFOR)info->data;
+                                //for(int i = 0 ;i < pState->num; i++)
+                                //{
+                                //    sText.Format(L"E-Dice DROP ID %d num%d ",pState->states[i].id,pState->num);
+                                //    m_listEDice.InsertString(-1,sText);
+                                //}
 
-                        //}
-                        break;
+                                break;
+                            }
+                        case (uint)EDICE_STATE_TYPE.EDICE_POWER:
+                            {
+                                this.DicePower(this, null);
+                                //PEDICE_STATE_INFOR pState = (PEDICE_STATE_INFOR)info->data;
+                                //sText.Format(L"E-Dice low power ID %d ",pState->states[0].id);
+                                //m_listEDice.InsertString(-1,sText);
+                                break;
+                            }
+                        case (uint)EDICE_STATE_TYPE.EDICE_CONNECT:
+                            {
+                                this.DiceConnect(this, null);
+                                var pConnect = (EDICE_CONNECT_INFOR)Marshal.PtrToStructure(dataPtr, typeof(EDICE_CONNECT_INFOR));
+                                //EDICE_CONNECT_INFOR pState = (EDICE_CONNECT_INFOR)structInfo.data;
+                                //gDongleId = pState->id[0];
+                                //sText.Format(L"E-Dice connect: num = %d id[0] = %d",pState->num,pState->id[0]);
+                                //m_listEDice.InsertString(-1,sText);
+                                break;
+                            }
+                        case (uint)EDICE_STATE_TYPE.EDICE_DISCONNECT:
+                            {
+                                this.DiceDisconnect(this, null);
+                                //PEDICE_DISCONNECT_INFOR pState = (PEDICE_DISCONNECT_INFOR)info->data;
+                                //sText.Format(L"E-Dice disconnect: num = %d ",pState->num);
+                                //m_listEDice.InsertString(-1,sText);
+                                break;
+                            }
                     }
-                    case (uint)EDICE_STATE_TYPE.EDICE_DROP:
-                    {
-                        //PEDICE_STATE_INFOR pState = (PEDICE_STATE_INFOR)info->data;
-                        //for(int i = 0 ;i < pState->num; i++)
-                        //{
-                        //    sText.Format(L"E-Dice DROP ID %d num%d ",pState->states[i].id,pState->num);
-                        //    m_listEDice.InsertString(-1,sText);
-                        //}
 
-                        break;
-                    }
-                    case (uint)EDICE_STATE_TYPE.EDICE_POWER:
-                    {
-                        //PEDICE_STATE_INFOR pState = (PEDICE_STATE_INFOR)info->data;
-                        //sText.Format(L"E-Dice low power ID %d ",pState->states[0].id);
-                        //m_listEDice.InsertString(-1,sText);
-                        break;
-                    }
-                    case (uint)EDICE_STATE_TYPE.EDICE_CONNECT:
-                    {
-                        //PEDICE_CONNECT_INFOR pState = (PEDICE_CONNECT_INFOR)info->data;
-                        //gDongleId = pState->id[0];
-                        //sText.Format(L"E-Dice connect: num = %d id[0] = %d",pState->num,pState->id[0]);
-                        //m_listEDice.InsertString(-1,sText);
-                        break;
-                    }
-                    case (uint)EDICE_STATE_TYPE.EDICE_DISCONNECT:
-                    {
-                        //PEDICE_DISCONNECT_INFOR pState = (PEDICE_DISCONNECT_INFOR)info->data;
-                        //sText.Format(L"E-Dice disconnect: num = %d ",pState->num);
-                        //m_listEDice.InsertString(-1,sText);
-                        break;
-                    }
+                    Vrlib.CloseInteractionMessageHandle(lParam);
+
+                    return true;
                 }
-
-                Vrlib.CloseInteractionMessageHandle(lParam);
-
-                return true;
+                finally
+                {
+                    Marshal.FreeHGlobal(info);
+                }
             }
 
             return false;

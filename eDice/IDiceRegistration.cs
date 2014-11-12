@@ -14,6 +14,14 @@ namespace eDice
         /// </summary>
         event EventHandler DiceShaken;
 
+        event EventHandler<DiceState> DicePower;
+
+        event EventHandler<DiceState> DiceConnect;
+
+        event EventHandler<DiceState> DiceDisconnect;
+
+        void StartMatch();
+
         bool HandleMessage(int message, IntPtr wParam, IntPtr lParam);
     }
 }

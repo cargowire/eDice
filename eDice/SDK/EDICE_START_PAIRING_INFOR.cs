@@ -9,8 +9,8 @@ namespace eDice.SDK
     /// }EDICE_START_PAIRING_INFOR,*PEDICE_START_PAIRING_INFOR;
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    internal class EDICE_START_PAIRING_INFOR
+    internal struct EDICE_START_PAIRING_INFOR
     {
-        int id;
+        public int id;
     }
 }

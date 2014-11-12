@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace eDice.SDK
 {
@@ -14,6 +15,7 @@ namespace eDice.SDK
     internal struct VR_MESSAGE_INFORMATION
     {
         public MESSAGE_HEADER header;
-        public EDICE_STATE_INFOR data;
+        
+        public IntPtr data;
     }
 }
