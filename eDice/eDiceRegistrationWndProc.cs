@@ -51,27 +51,32 @@ namespace eDice
         /// <summary>
         /// The dice rolled event
         /// </summary>
-        public event EventHandler<DiceState> DiceRolled = delegate { };
+        public event EventHandler<DiceStateEventArgs> DiceRolled = delegate { };
 
         /// <summary>
         /// The dice shaken event
         /// </summary>
-        public event EventHandler DiceShaken = delegate { };
+        public event EventHandler<DiceStateEventArgs> DiceShaken = delegate { };
 
         /// <summary>
         /// The dice power event
         /// </summary>
-        public event EventHandler<DiceState> DicePower = delegate { };
+        public event EventHandler<DiceStateEventArgs> DicePower = delegate { };
+
+        /// <summary>
+        /// The dice has been dropped
+        /// </summary>
+        public event EventHandler<DiceStateEventArgs> DiceDropped = delegate { };
 
         /// <summary>
         /// The dice connect event
         /// </summary>
-        public event EventHandler<DiceState> DiceConnect = delegate { };
+        public event EventHandler<DiceStateEventArgs> DiceConnect = delegate { };
 
         /// <summary>
         /// The dice disconnect event
         /// </summary>
-        public event EventHandler<DiceState> DiceDisconnect = delegate { };
+        public event EventHandler<DiceStateEventArgs> DiceDisconnect = delegate { };
 
         /// <summary>
         /// Start a match
@@ -106,10 +111,10 @@ namespace eDice
         /// Fire the shaken event
         /// </summary>
         /// <param name="sender">The sender</param>
-        /// <param name="eventArgs">The args</param>
-        private void RegistrationOnDiceShaken(object sender, EventArgs eventArgs)
+        /// <param name="diceState">The args</param>
+        private void RegistrationOnDiceShaken(object sender, DiceStateEventArgs diceState)
         {
-            this.DiceShaken(this, eventArgs);
+            this.DiceShaken(this, diceState);
         }
 
         /// <summary>
@@ -117,7 +122,7 @@ namespace eDice
         /// </summary>
         /// <param name="sender">The sender</param>
         /// <param name="diceState">The event args</param>
-        private void RegistrationOnDiceRolled(object sender, DiceState diceState)
+        private void RegistrationOnDiceRolled(object sender, DiceStateEventArgs diceState)
         {
             this.DiceRolled(this, diceState);
         }
@@ -127,7 +132,7 @@ namespace eDice
         /// </summary>
         /// <param name="sender">The sender</param>
         /// <param name="diceState">The event args</param>
-        private void RegistrationOnDicePower(object sender, DiceState diceState)
+        private void RegistrationOnDicePower(object sender, DiceStateEventArgs diceState)
         {
             this.DicePower(this, diceState);
         }
@@ -137,7 +142,7 @@ namespace eDice
         /// </summary>
         /// <param name="sender">The sender</param>
         /// <param name="diceState">The event args</param>
-        private void RegistrationOnDiceConnect(object sender, DiceState diceState)
+        private void RegistrationOnDiceConnect(object sender, DiceStateEventArgs diceState)
         {
             this.DiceConnect(this, diceState);
         }
@@ -147,7 +152,7 @@ namespace eDice
         /// </summary>
         /// <param name="sender">The sender</param>
         /// <param name="diceState">The event args</param>
-        private void RegistrationOnDiceDisconnect(object sender, DiceState diceState)
+        private void RegistrationOnDiceDisconnect(object sender, DiceStateEventArgs diceState)
         {
             this.DiceDisconnect(this, diceState);
         }

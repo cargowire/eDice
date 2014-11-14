@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 
@@ -22,18 +23,32 @@ namespace eDice
         /// <summary>
         /// The dice has been rolled
         /// </summary>
-        public event EventHandler<DiceState> DiceRolled = delegate { };
+        public event EventHandler<DiceStateEventArgs> DiceRolled = delegate { };
 
         /// <summary>
-        /// The device has been shaken
+        /// The dice has been shaken
         /// </summary>
-        public event EventHandler DiceShaken = delegate { };
+        public event EventHandler<DiceStateEventArgs> DiceShaken = delegate { };
 
-        public event EventHandler<DiceState> DicePower = delegate { };
+        /// <summary>
+        /// The dice power has been reported
+        /// </summary>
+        public event EventHandler<DiceStateEventArgs> DicePower = delegate { };
 
-        public event EventHandler<DiceState> DiceConnect = delegate { };
+        /// <summary>
+        /// The dice has been dropped
+        /// </summary>
+        public event EventHandler<DiceStateEventArgs> DiceDropped = delegate { };
 
-        public event EventHandler<DiceState> DiceDisconnect = delegate { };
+        /// <summary>
+        /// Dice have connected
+        /// </summary>
+        public event EventHandler<DiceStateEventArgs> DiceConnect = delegate { };
+
+        /// <summary>
+        /// Dice have disconnected
+        /// </summary>
+        public event EventHandler<DiceStateEventArgs> DiceDisconnect = delegate { };
 
         internal IntPtr HookMessage(int message, IntPtr wParam, IntPtr lParam)
         {
@@ -86,57 +101,69 @@ namespace eDice
                     {
                         case (uint)EDICE_STATE_TYPE.EDICE_ROLLED:
                             {
-                                var pState = (EDICE_STATE_INFOR)Marshal.PtrToStructure(dataPtr, typeof(EDICE_STATE_INFOR));
-                                var statesOffset = Marshal.OffsetOf(typeof(EDICE_STATE_INFOR), "states");
+                                var diceStates = this.GetStateInformation(dataPtr);
 
-                                var statePtr = new IntPtr(dataPtr.ToInt32() + statesOffset.ToInt32());
-                                var structSize = Marshal.SizeOf(typeof(DICE_STATE));
-                                var innerStructs = new List<DICE_STATE>();
-                                for (int i = 0; i < pState.num; i++)
-                                {
-                                    innerStructs.Add((DICE_STATE)Marshal.PtrToStructure(statePtr, typeof(DICE_STATE)));
-                                    statePtr = (IntPtr)((int)statePtr + structSize);
+                                this.DiceRolled(
+                                    this,
+                                    new DiceStateEventArgs(
+                                        diceStates.Select(
+                                            s => new DiceState()
+                                            {
+                                                Id = s.id,
+                                                Value = s.value,
+                                                Power = s.power
+                                            }).ToList()));
 
-                                    this.DiceRolled(this, new DiceState() { Value = innerStructs[0].value });
-                                }
-
-                                //System.Diagnostics.Debug.WriteLine(
-                                //    string.Format("E-Dice rolled ID %d, value%d ",
-                                //        states[i].id, states[i].value));
-                                //    EdiceMatchValue(pState->states[i].id);
-                                //    m_listEDice.InsertString(-1,sText);
                                 break;
                             }
                         case (uint)EDICE_STATE_TYPE.EDICE_SHAKE:
                             {
-                                this.DiceShaken(this, EventArgs.Empty);
+                                var diceStates = this.GetStateInformation(dataPtr);
 
-                                //PEDICE_STATE_INFOR pState = (PEDICE_STATE_INFOR)info->data;
-                                //for(int i = 0 ;i < pState->num; i++)
-                                //{
-                                //    sText.Format(L"E-Dice shake ID %d, power %d",pState->states[i].id,pState->states[i].power);
-                                //    m_listEDice.InsertString(-1,sText);
-
-                                //}
+                                this.DiceShaken(
+                                    this,
+                                    new DiceStateEventArgs(
+                                        diceStates.Select(
+                                            s => new DiceState()
+                                            {
+                                                Id = s.id,
+                                                Value = null,
+                                                Power = s.power
+                                            }).ToList()));
                                 break;
                             }
                         case (uint)EDICE_STATE_TYPE.EDICE_DROP:
                             {
-                                //PEDICE_STATE_INFOR pState = (PEDICE_STATE_INFOR)info->data;
-                                //for(int i = 0 ;i < pState->num; i++)
-                                //{
-                                //    sText.Format(L"E-Dice DROP ID %d num%d ",pState->states[i].id,pState->num);
-                                //    m_listEDice.InsertString(-1,sText);
-                                //}
+                                var diceStates = this.GetStateInformation(dataPtr);
+
+                                this.DiceDropped(
+                                    this,
+                                    new DiceStateEventArgs(
+                                        diceStates.Select(
+                                            s => new DiceState()
+                                            {
+                                                Id = s.id,
+                                                Value = null,
+                                                Power = null
+                                            }).ToList()));
 
                                 break;
                             }
                         case (uint)EDICE_STATE_TYPE.EDICE_POWER:
                             {
-                                this.DicePower(this, null);
-                                //PEDICE_STATE_INFOR pState = (PEDICE_STATE_INFOR)info->data;
-                                //sText.Format(L"E-Dice low power ID %d ",pState->states[0].id);
-                                //m_listEDice.InsertString(-1,sText);
+                                var diceStates = this.GetStateInformation(dataPtr);
+
+                                this.DicePower(
+                                    this,
+                                    new DiceStateEventArgs(
+                                        diceStates.Select(
+                                            s => new DiceState()
+                                            {
+                                                Id = s.id,
+                                                Value = null,
+                                                Power = s.power
+                                            }).ToList()));
+
                                 break;
                             }
                         case (uint)EDICE_STATE_TYPE.EDICE_CONNECT:
@@ -184,6 +211,23 @@ namespace eDice
             {            
                 Vrlib.Unregister(this.registrationHandle);
             }
+        }
+
+        private List<DICE_STATE> GetStateInformation(IntPtr ediceStateInforPtr)
+        {
+            var pState = (EDICE_STATE_INFOR)Marshal.PtrToStructure(ediceStateInforPtr, typeof(EDICE_STATE_INFOR));
+            var statesOffset = Marshal.OffsetOf(typeof(EDICE_STATE_INFOR), "states");
+
+            var statePtr = new IntPtr(ediceStateInforPtr.ToInt32() + statesOffset.ToInt32());
+            var structSize = Marshal.SizeOf(typeof(DICE_STATE));
+            var innerStructs = new List<DICE_STATE>();
+            for (int i = 0; i < pState.num; i++)
+            {
+                innerStructs.Add((DICE_STATE)Marshal.PtrToStructure(statePtr, typeof(DICE_STATE)));
+                statePtr = (IntPtr)((int)statePtr + structSize);
+            }
+
+            return innerStructs;
         }
     }
 }

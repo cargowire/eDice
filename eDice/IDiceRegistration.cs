@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace eDice
 {
@@ -10,27 +11,32 @@ namespace eDice
         /// <summary>
         /// The dice has been rolled
         /// </summary>
-        event EventHandler<DiceState> DiceRolled;
+        event EventHandler<DiceStateEventArgs> DiceRolled;
 
         /// <summary>
         /// The device has been shaken
         /// </summary>
-        event EventHandler DiceShaken;
+        event EventHandler<DiceStateEventArgs> DiceShaken;
 
+        /// <summary>
+        /// The dice has been dropped
+        /// </summary>
+        event EventHandler<DiceStateEventArgs> DiceDropped;
+        
         /// <summary>
         /// The device has sent a power update
         /// </summary>
-        event EventHandler<DiceState> DicePower;
+        event EventHandler<DiceStateEventArgs> DicePower;
 
         /// <summary>
         /// Devices have connected
         /// </summary>
-        event EventHandler<DiceState> DiceConnect;
+        event EventHandler<DiceStateEventArgs> DiceConnect;
 
         /// <summary>
         /// Devices have disconnected
         /// </summary>
-        event EventHandler<DiceState> DiceDisconnect;
+        event EventHandler<DiceStateEventArgs> DiceDisconnect;
 
         /// <summary>
         /// Start a match

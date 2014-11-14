@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace eDice.TestHarness
@@ -27,6 +28,7 @@ namespace eDice.TestHarness
             #endif
 
             this.registration.DiceShaken += this.DiceShaken;
+            this.registration.DiceDropped += this.DiceDropped;
             this.registration.DiceRolled += this.DiceRolled;
             this.registration.DicePower += this.DicePower;
             this.registration.DiceConnect += this.DiceConnect;
@@ -46,30 +48,47 @@ namespace eDice.TestHarness
             this.Log.Items.Insert(0, DateTime.Now.ToShortTimeString() + " Unhandled exception");
         }
 
-        private void DiceShaken(object sender, EventArgs args)
+        private void DiceDropped(object sender, DiceStateEventArgs e)
         {
-            this.Log.Items.Insert(0, DateTime.Now.ToShortTimeString() + " Dice Shaken");
+            foreach (var dice in e.DiceStates)
+            {
+                this.Log.Items.Insert(0, DateTime.Now.ToShortTimeString() + " Dice id " + dice.Id + " Dropped");
+            }
         }
 
-        private void DicePower(object sender, DiceState diceState)
+        private void DiceShaken(object sender, DiceStateEventArgs e)
         {
-            this.Log.Items.Insert(0, DateTime.Now.ToShortTimeString() + " Dice power");
+            foreach (var dice in e.DiceStates)
+            {
+                this.Log.Items.Insert(0, DateTime.Now.ToShortTimeString() + " Dice id " + dice.Id + " Shaken. Power: " + dice.Power);
+            }
         }
 
-        private void DiceConnect(object sender, DiceState diceState)
+        private void DicePower(object sender, DiceStateEventArgs e)
+        {
+            foreach (var dice in e.DiceStates)
+            {
+                this.Log.Items.Insert(0, DateTime.Now.ToShortTimeString() + " Dice id " + dice.Id + " Power: " + dice.Power);
+            }
+        }
+
+        private void DiceConnect(object sender, DiceStateEventArgs diceState)
         {
             this.Log.Items.Insert(0, DateTime.Now.ToShortTimeString() + " Dice Connected");
         }
-        
-        private void DiceDisconnect(object sender, DiceState diceState)
+
+        private void DiceDisconnect(object sender, DiceStateEventArgs diceState)
         {
             this.Log.Items.Insert(0, DateTime.Now.ToShortTimeString() + " Dice Disconnected");
         }
 
-        private void DiceRolled(object sender, DiceState e)
+        private void DiceRolled(object sender, DiceStateEventArgs e)
         {
-            DiceValueLabel.Text = e.Value.ToString();
-            this.Log.Items.Insert(0, DateTime.Now.ToShortTimeString() + " Dice Rolled: " + e.Value);
+            foreach (var dice in e.DiceStates)
+            {
+                DiceValueLabel.Text = dice.Value.ToString();
+                this.Log.Items.Insert(0, DateTime.Now.ToShortTimeString() + " Dice id " + dice.Id + " Rolled: " + dice.Value);
+            }
         }
 
         /// <summary>
