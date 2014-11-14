@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define AUTO_IDENTIFY_WINDOW // Comment this out if you want to test registering a known hWnd instead
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -6,6 +8,9 @@ using System.Runtime.InteropServices;
 
 namespace eDice.TestHarness
 {
+    /// <summary>
+    /// A test harness that effectively logs output from an edice
+    /// </summary>
     partial class DiceValueForm
     {
         private IContainer components = null;
@@ -14,9 +19,13 @@ namespace eDice.TestHarness
         protected override void OnLoad(System.EventArgs e)
         {
             base.OnLoad(e);
-
+            
+            #if (AUTO_IDENTIFY_WINDOW)
             this.registration = eDice.Register();
-            // this.registration = eDice.Register(this.Handle);
+            #else
+            this.registration = eDice.Register(this.Handle);
+            #endif
+
             this.registration.DiceShaken += this.DiceShaken;
             this.registration.DiceRolled += this.DiceRolled;
             this.registration.DicePower += this.DicePower;
@@ -81,10 +90,12 @@ namespace eDice.TestHarness
 
         protected override void WndProc(ref System.Windows.Forms.Message m)
         {
-            /*if (this.registration != null && this.registration.HandleMessage(m.Msg, m.WParam, m.LParam))
+            #if (!AUTO_IDENTIFY_WINDOW)
+            if (this.registration != null && this.registration.HandleMessage(m.Msg, m.WParam, m.LParam))
             {
                 return;
-            }*/
+            }
+            #endif
 
             base.WndProc(ref m);
         }
