@@ -39,8 +39,8 @@ namespace eDice
             this.registration.DiceRolled += this.RegistrationOnDiceRolled;
             this.registration.DiceShaken += this.RegistrationOnDiceShaken;
             this.registration.DicePower += this.RegistrationOnDicePower;
-            this.registration.DiceConnect += this.RegistrationOnDiceConnect;
-            this.registration.DiceDisconnect += this.RegistrationOnDiceDisconnect;
+            this.registration.DongleConnected += this.RegistrationOnDongleConnected;
+            this.registration.DongleDisconnected += this.RegistrationOnDongleDisconnected;
         }
 
         /// <summary>
@@ -71,12 +71,12 @@ namespace eDice
         /// <summary>
         /// The dice connect event
         /// </summary>
-        public event EventHandler<DiceStateEventArgs> DiceConnect = delegate { };
+        public event EventHandler<DongleEventArgs> DongleConnected = delegate { };
 
         /// <summary>
         /// The dice disconnect event
         /// </summary>
-        public event EventHandler<DiceStateEventArgs> DiceDisconnect = delegate { };
+        public event EventHandler<DongleEventArgs> DongleDisconnected = delegate { };
 
         /// <summary>
         /// Start a match
@@ -141,20 +141,20 @@ namespace eDice
         /// Fire the connect event
         /// </summary>
         /// <param name="sender">The sender</param>
-        /// <param name="diceState">The event args</param>
-        private void RegistrationOnDiceConnect(object sender, DiceStateEventArgs diceState)
+        /// <param name="dongleEventArgs">The event args</param>
+        private void RegistrationOnDongleConnected(object sender, DongleEventArgs dongleEventArgs)
         {
-            this.DiceConnect(this, diceState);
+            this.DongleConnected(this, dongleEventArgs);
         }
 
         /// <summary>
         /// Fire the disconnect event
         /// </summary>
         /// <param name="sender">The sender</param>
-        /// <param name="diceState">The event args</param>
-        private void RegistrationOnDiceDisconnect(object sender, DiceStateEventArgs diceState)
+        /// <param name="dongleEventArgs">The event args</param>
+        private void RegistrationOnDongleDisconnected(object sender, DongleEventArgs dongleEventArgs)
         {
-            this.DiceDisconnect(this, diceState);
+            this.DongleDisconnected(this, dongleEventArgs);
         }
     }
 }

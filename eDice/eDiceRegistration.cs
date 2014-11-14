@@ -43,12 +43,12 @@ namespace eDice
         /// <summary>
         /// Dice have connected
         /// </summary>
-        public event EventHandler<DiceStateEventArgs> DiceConnect = delegate { };
+        public event EventHandler<DongleEventArgs> DongleConnected = delegate { };
 
         /// <summary>
         /// Dice have disconnected
         /// </summary>
-        public event EventHandler<DiceStateEventArgs> DiceDisconnect = delegate { };
+        public event EventHandler<DongleEventArgs> DongleDisconnected = delegate { };
 
         internal IntPtr HookMessage(int message, IntPtr wParam, IntPtr lParam)
         {
@@ -168,20 +168,20 @@ namespace eDice
                             }
                         case (uint)EDICE_STATE_TYPE.EDICE_CONNECT:
                             {
-                                this.DiceConnect(this, null);
-                                var pConnect = (EDICE_CONNECT_INFOR)Marshal.PtrToStructure(dataPtr, typeof(EDICE_CONNECT_INFOR));
-                                //EDICE_CONNECT_INFOR pState = (EDICE_CONNECT_INFOR)structInfo.data;
-                                //gDongleId = pState->id[0];
-                                //sText.Format(L"E-Dice connect: num = %d id[0] = %d",pState->num,pState->id[0]);
-                                //m_listEDice.InsertString(-1,sText);
+                                var ids = this.GetConnectionInformation<EDICE_DISCONNECT_INFOR>(dataPtr);
+
+                                this.DongleConnected(
+                                    this,
+                                    new DongleEventArgs(ids));
                                 break;
                             }
                         case (uint)EDICE_STATE_TYPE.EDICE_DISCONNECT:
                             {
-                                this.DiceDisconnect(this, null);
-                                //PEDICE_DISCONNECT_INFOR pState = (PEDICE_DISCONNECT_INFOR)info->data;
-                                //sText.Format(L"E-Dice disconnect: num = %d ",pState->num);
-                                //m_listEDice.InsertString(-1,sText);
+                                var ids = this.GetConnectionInformation<EDICE_DISCONNECT_INFOR>(dataPtr);
+
+                                this.DongleDisconnected(
+                                    this,
+                                    new DongleEventArgs(ids));
                                 break;
                             }
                     }
@@ -228,6 +228,24 @@ namespace eDice
             }
 
             return innerStructs;
+        }
+
+        private List<int> GetConnectionInformation<T>(IntPtr ediceStateInforPtr)
+            where T : DiceConnectionInformation
+        {
+            var pConnect = (T)Marshal.PtrToStructure(ediceStateInforPtr, typeof(T));
+
+            var idsOffset = Marshal.OffsetOf(typeof(EDICE_CONNECT_INFOR), "id");
+
+            var idPtr = new IntPtr(ediceStateInforPtr.ToInt32() + idsOffset.ToInt32());
+            var ids = new List<int>();
+            for (int i = 0; i < pConnect.num; i++)
+            {
+                ids.Add(Marshal.ReadInt32(idPtr));
+                idPtr = (IntPtr)((int)idPtr + sizeof(int));
+            }
+
+            return ids;
         }
     }
 }

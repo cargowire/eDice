@@ -31,8 +31,8 @@ namespace eDice.TestHarness
             this.registration.DiceDropped += this.DiceDropped;
             this.registration.DiceRolled += this.DiceRolled;
             this.registration.DicePower += this.DicePower;
-            this.registration.DiceConnect += this.DiceConnect;
-            this.registration.DiceDisconnect += this.DiceDisconnect;
+            this.registration.DongleConnected += this.DongleConnected;
+            this.registration.DongleDisconnected += this.DongleDisconnected;
 
             MatchButton.Click += MatchButtonOnClick;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
@@ -72,14 +72,20 @@ namespace eDice.TestHarness
             }
         }
 
-        private void DiceConnect(object sender, DiceStateEventArgs diceState)
+        private void DongleConnected(object sender, DongleEventArgs e)
         {
-            this.Log.Items.Insert(0, DateTime.Now.ToShortTimeString() + " Dice Connected");
+            foreach (var id in e.DongleIds)
+            {
+                this.Log.Items.Insert(0, DateTime.Now.ToShortTimeString() + " Dongle Connected: " + id);
+            }
         }
 
-        private void DiceDisconnect(object sender, DiceStateEventArgs diceState)
+        private void DongleDisconnected(object sender, DongleEventArgs e)
         {
-            this.Log.Items.Insert(0, DateTime.Now.ToShortTimeString() + " Dice Disconnected");
+            foreach (var id in e.DongleIds)
+            {
+                this.Log.Items.Insert(0, DateTime.Now.ToShortTimeString() + " Dongle Disconnected: " + id);
+            }
         }
 
         private void DiceRolled(object sender, DiceStateEventArgs e)

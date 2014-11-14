@@ -31,12 +31,12 @@ namespace eDice
         /// <summary>
         /// Devices have connected
         /// </summary>
-        event EventHandler<DiceStateEventArgs> DiceConnect;
+        event EventHandler<DongleEventArgs> DongleConnected;
 
         /// <summary>
         /// Devices have disconnected
         /// </summary>
-        event EventHandler<DiceStateEventArgs> DiceDisconnect;
+        event EventHandler<DongleEventArgs> DongleDisconnected;
 
         /// <summary>
         /// Start a match

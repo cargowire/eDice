@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DongleEventArgs.cs" />
     <Compile Include="DiceStateEventArgs.cs" />
     <Compile Include="eDiceRegistrationWndProc.cs" />
     <Compile Include="IDiceRegistration.cs" />
@@ -51,6 +52,7 @@
     <Compile Include="HookType.cs" />
     <Compile Include="RegistrationException.cs" />
     <Compile Include="SDK\DICE_STATE.cs" />
+    <Compile Include="SDK\DiceConnectionInformation.cs" />
     <Compile Include="SDK\Vrlib.cs" />
     <Compile Include="SDK\EDICE_CONNECT_INFOR.cs" />
     <Compile Include="SDK\EDICE_DISCONNECT_INFOR.cs" />
