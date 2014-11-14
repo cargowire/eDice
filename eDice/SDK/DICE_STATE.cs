@@ -14,8 +14,19 @@ namespace eDice.SDK
     [StructLayout(LayoutKind.Sequential)]
     internal class DICE_STATE
     {
+        /// <summary>
+        /// The hardware id of the device
+        /// </summary>
         public Int32 id;
+
+        /// <summary>
+        /// A value related to the identified dice.
+        /// </summary>
         public Int32 value;
+
+        /// <summary>
+        /// The power of the device.  Zero indicates low power.
+        /// </summary>
         public Int32 power;
     }
 }

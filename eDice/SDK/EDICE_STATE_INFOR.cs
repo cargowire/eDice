@@ -17,8 +17,19 @@ namespace eDice.SDK
     [StructLayout(LayoutKind.Sequential)]
     internal struct EDICE_STATE_INFOR
     {
+        /// <summary>
+        /// The dongle id
+        /// </summary>
         public int id;
+
+        /// <summary>
+        /// The number of state structures to expect in states
+        /// </summary>
         public uint num;
+
+        /// <summary>
+        /// An array of dice states
+        /// </summary>
         public IntPtr states;
     }
 }

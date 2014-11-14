@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace eDice.SDK
 {
@@ -13,8 +14,19 @@ namespace eDice.SDK
     [StructLayout(LayoutKind.Sequential)]
     internal class EDICE_PAIRING_INFOR
     {
-        int id;
-        int num;
-        //TODO: int dices[0];
+        /// <summary>
+        /// The dongle id
+        /// </summary>
+        public int id;
+
+        /// <summary>
+        /// The number of dice ids in the dices property
+        /// </summary>
+        public uint num;
+
+        /// <summary>
+        /// An array of dice ids
+        /// </summary>
+        public IntPtr dices;
     }
 }

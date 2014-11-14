@@ -1,30 +1,46 @@
 namespace eDice.SDK
 {
     /// <summary>
-    /// 
+    /// E-Dice state types
     /// </summary>
     internal enum EDICE_STATE_TYPE : uint
     {
-        //e-dice message	
+        //// E-dice messages
         EDICE_ROLLED = 1,
         EDICE_SHAKE,
-        EDICE_DROP,			// not implement 
-        EDICE_POWER,		// not implement 
 
-        //DONGLE message	
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        EDICE_DROP,
+
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        EDICE_POWER,
+
+        //// DONGLE messages
         EDICE_CONNECT,
         EDICE_DISCONNECT,
 
-        //set to dongle
-        EDICE_START_PAIRING,	//start pairing; dongle should enter pairing mode (enable all e-dice)
-        EDICE_SET_PAIRING,		//end and set pairing 
+        //// Set to dongle
+
+        /// <summary>
+        /// Start pairing; dongle should enter pairing mode (enable all e-dice)
+        /// </summary>
+        EDICE_START_PAIRING,
+
+        /// <summary>
+        /// End and set pairing 
+        /// </summary>
+        EDICE_SET_PAIRING,
         EDICE_END_PAIRING,
 
-        //query from dongle
+        // Query from dongle
         EDICE_QUERY_PAIRED,
 
-        //internal message, only used by SDK
-        //EDICE_PAIRED_CHANGING_INTERNAL, 
-        //EDICE_REGISTER_WINDOW_INTERNAL,
-    };
+        // Internal messages -  only used by SDK
+        // EDICE_PAIRED_CHANGING_INTERNAL, 
+        // EDICE_REGISTER_WINDOW_INTERNAL,
+    }
 }

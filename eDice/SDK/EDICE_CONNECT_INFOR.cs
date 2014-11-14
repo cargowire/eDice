@@ -13,8 +13,16 @@ namespace eDice.SDK
     [StructLayout(LayoutKind.Sequential)]
     internal class EDICE_CONNECT_INFOR
     {
-        public int num;
+        /// <summary>
+        /// The length of the id array
+        /// </summary>
+        public uint num;
 
+        /// <remarks>
+        /// This will not be the pointer, this will just be the next byte in memory after 'num'
+        /// We need to manually figure out what comes here based on the SDK definition (lists of
+        /// dongle ids).  This variable provides a hook for Marshal offsets etc.
+        /// </remarks>
         public IntPtr id;
     }
 }

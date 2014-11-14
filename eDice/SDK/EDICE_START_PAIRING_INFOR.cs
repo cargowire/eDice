@@ -11,6 +11,9 @@ namespace eDice.SDK
     [StructLayout(LayoutKind.Sequential)]
     internal struct EDICE_START_PAIRING_INFOR
     {
+        /// <summary>
+        /// The dongle id
+        /// </summary>
         public int id;
     }
 }
