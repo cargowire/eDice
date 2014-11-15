@@ -42,7 +42,7 @@ namespace eDice
         /// <summary>
         /// Gets the paired devices
         /// </summary>
-        ReadOnlyCollection<int> PairedDevices { get; } 
+        ReadOnlyCollection<int> ConnectedDongles { get; } 
 
         /// <summary>
         /// Start a match

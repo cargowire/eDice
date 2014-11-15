@@ -20,6 +20,8 @@ public class TextSetter : MonoBehaviour
     {
         diceValue = (GUIText)GameObject.Find("DiceText").guiText;
 	    registration = eDice.eDice.Register();
+        registration.Pair();
+
         this.registration.DongleConnected += this.registration_DongleConnected;
         this.registration.DongleDisconnected += this.registration_DongleDisconnected;
         this.registration.DiceRolled += this.registration_DiceRolled;
@@ -71,11 +73,5 @@ public class TextSetter : MonoBehaviour
     void Update()
     {
         diceValue.text = string.Format("Last Dice Roll: {0}\n\nLast Activity: {1}", this.lastRoll, this.lastActivity);
-
-        if (registration != null && registration.PairedDevices.Count == 0)
-        {
-            // Attempt a pair if we haven't currently got one
-            registration.Pair();
-        }
     }
 }

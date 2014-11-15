@@ -55,7 +55,7 @@ namespace eDice
         /// <summary>
         /// Gets the paired devices
         /// </summary>
-        public ReadOnlyCollection<int> PairedDevices 
+        public ReadOnlyCollection<int> ConnectedDongles 
         {
             get
             {
@@ -226,6 +226,7 @@ namespace eDice
                         case (uint)EDICE_STATE_TYPE.EDICE_DISCONNECT:
                             {
                                 var ids = this.GetConnectionInformation<EDICE_DISCONNECT_INFOR>(dataPtr);
+                                ids.ForEach(id => this.dongleIds.Remove(id));
 
                                 this.DongleDisconnected(
                                     this,

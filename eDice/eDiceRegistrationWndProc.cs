@@ -90,11 +90,11 @@ namespace eDice
         /// <summary>
         /// Gets the paired devices
         /// </summary>
-        public ReadOnlyCollection<int> PairedDevices
+        public ReadOnlyCollection<int> ConnectedDongles
         {
             get
             {
-                return this.registration.PairedDevices;
+                return this.registration.ConnectedDongles;
             }
         }
 
