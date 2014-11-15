@@ -129,6 +129,55 @@ namespace eDice
             }
         }
 
+        /// <summary>
+        /// Gets paired devices
+        /// Note: This currently always seems to return zero (so too does the C++ sample project).
+        /// The only alternative therefore is to call pair regularly or set some kind of timeout from 
+        /// 'shaken' (the most often occuring dice activity) and call 'Pair' if it has not occured after a certain time.
+        /// </summary>
+        /// <param name="dongleId">The dongle id</param>
+        /// <returns>A list of paired dice ids</returns>
+        public List<int> GetPairedDevices(int? dongleId = null)
+        {
+            IntPtr pairingInfoPtr = IntPtr.Zero;
+            try
+            {
+                uint structSize = 1024;
+                EDICE_PAIRING_INFOR pairingInfo = new EDICE_PAIRING_INFOR();
+                pairingInfo.id = dongleId ?? this.dongleIds.FirstOrDefault();
+
+                pairingInfoPtr = Marshal.AllocHGlobal((int)structSize);
+                Marshal.StructureToPtr(pairingInfo, pairingInfoPtr, false);
+
+                var ids = new List<int>();
+
+                if (Vrlib.GetInteractionState(
+                    this.registrationHandle,
+                    (uint)EDICE_STATE_TYPE.EDICE_QUERY_PAIRED,
+                    pairingInfoPtr,
+                    ref structSize))
+                {
+
+                    var paired =
+                        (EDICE_PAIRING_INFOR)Marshal.PtrToStructure(pairingInfoPtr, typeof(EDICE_PAIRING_INFOR));
+
+                    var dicesOffset = Marshal.OffsetOf(typeof(EDICE_PAIRING_INFOR), "dices");
+
+                    var idPtr = new IntPtr(pairingInfoPtr.ToInt32() + dicesOffset.ToInt32());
+                    for (int i = 0; i < paired.num; i++)
+                    {
+                        ids.Add(Marshal.ReadInt32(idPtr));
+                        idPtr = (IntPtr)((int)idPtr + sizeof(int));
+                    }
+                }
+                return ids;
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(pairingInfoPtr);
+            }
+        }
+
         public bool HandleMessage(int message, IntPtr wParam, IntPtr lParam)
         {
             if (message == Vrlib.WM_EDICE)

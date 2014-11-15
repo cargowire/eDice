@@ -12,7 +12,7 @@ namespace eDice.SDK
     /// }EDICE_PAIRING_INFOR,*PEDICE_PAIRING_INFOR;
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    internal class EDICE_PAIRING_INFOR
+    internal struct EDICE_PAIRING_INFOR
     {
         /// <summary>
         /// The dongle id

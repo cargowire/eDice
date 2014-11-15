@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace eDice
@@ -112,6 +113,16 @@ namespace eDice
         public void Unpair()
         {
             this.registration.Unpair();
+        }
+
+        /// <summary>
+        /// Gets paired devices
+        /// </summary>
+        /// <param name="dongleId">The dongle id</param>
+        /// <returns>A list of paired dice ids</returns>
+        public List<int> GetPairedDevices(int? dongleId = null)
+        {
+            return this.registration.GetPairedDevices(dongleId);
         }
 
         /// <summary>

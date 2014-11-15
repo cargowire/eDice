@@ -55,6 +55,13 @@ namespace eDice
         void Unpair();
 
         /// <summary>
+        /// Gets paired devices
+        /// </summary>
+        /// <param name="dongleId">The dongle id</param>
+        /// <returns>A list of paired dice ids</returns>
+        List<int> GetPairedDevices(int? dongleId = null);
+
+        /// <summary>
         /// Handle a WndProc message
         /// </summary>
         /// <param name="message">The message identifier</param>

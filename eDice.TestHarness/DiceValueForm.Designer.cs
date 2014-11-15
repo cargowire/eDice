@@ -35,8 +35,15 @@ namespace eDice.TestHarness
             this.registration.DongleDisconnected += this.DongleDisconnected;
 
             MatchButton.Click += MatchButtonOnClick;
+            ListPairedButton.Click += ListPairedButtonOnClick;
             UnMatchButton.Click += UnMatchButtonOnClick;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+        }
+
+        private void ListPairedButtonOnClick(object sender, EventArgs eventArgs)
+        {
+            var pairedDevices = this.registration.GetPairedDevices();
+            this.Log.Items.Insert(0, DateTime.Now.ToShortTimeString() + " Paired:" + string.Join(",", pairedDevices));
         }
 
         private void MatchButtonOnClick(object sender, EventArgs eventArgs)
@@ -146,13 +153,14 @@ namespace eDice.TestHarness
             this.Log = new System.Windows.Forms.ListBox();
             this.MatchButton = new System.Windows.Forms.Button();
             this.UnMatchButton = new System.Windows.Forms.Button();
+            this.ListPairedButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // DiceValueLabel
             // 
             this.DiceValueLabel.AutoSize = true;
             this.DiceValueLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 72F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.DiceValueLabel.Location = new System.Drawing.Point(89, 64);
+            this.DiceValueLabel.Location = new System.Drawing.Point(89, 39);
             this.DiceValueLabel.Name = "DiceValueLabel";
             this.DiceValueLabel.Size = new System.Drawing.Size(98, 108);
             this.DiceValueLabel.TabIndex = 0;
@@ -177,18 +185,28 @@ namespace eDice.TestHarness
             // 
             // UnMatchButton
             // 
-            this.UnMatchButton.Location = new System.Drawing.Point(203, 149);
+            this.UnMatchButton.Location = new System.Drawing.Point(203, 148);
             this.UnMatchButton.Name = "UnMatchButton";
             this.UnMatchButton.Size = new System.Drawing.Size(75, 23);
             this.UnMatchButton.TabIndex = 3;
             this.UnMatchButton.Text = "Unpair";
             this.UnMatchButton.UseVisualStyleBackColor = true;
             // 
+            // ListPairedButton
+            // 
+            this.ListPairedButton.Location = new System.Drawing.Point(107, 148);
+            this.ListPairedButton.Name = "ListPairedButton";
+            this.ListPairedButton.Size = new System.Drawing.Size(75, 23);
+            this.ListPairedButton.TabIndex = 4;
+            this.ListPairedButton.Text = "List Paired";
+            this.ListPairedButton.UseVisualStyleBackColor = true;
+            // 
             // DiceValueForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 261);
+            this.Controls.Add(this.ListPairedButton);
             this.Controls.Add(this.UnMatchButton);
             this.Controls.Add(this.MatchButton);
             this.Controls.Add(this.Log);
@@ -206,6 +224,7 @@ namespace eDice.TestHarness
         private System.Windows.Forms.ListBox Log;
         private System.Windows.Forms.Button MatchButton;
         private System.Windows.Forms.Button UnMatchButton;
+        private System.Windows.Forms.Button ListPairedButton;
     }
 }
 
