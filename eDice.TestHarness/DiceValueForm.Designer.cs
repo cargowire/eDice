@@ -106,6 +106,9 @@ namespace eDice.TestHarness
             if (disposing && (components != null))
             {
                 components.Dispose();
+            }
+            else if (disposing)
+            {
                 this.registration.DiceRolled -= this.DiceRolled;
                 this.registration.Dispose();
             }

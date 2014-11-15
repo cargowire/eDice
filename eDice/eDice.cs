@@ -70,7 +70,18 @@ namespace eDice
             {
                 registrations.Add(
                     window,
-                    new eDiceRegistrationWndProc(new IntPtr(result), w => registrations.Remove(w), registration));
+                    new eDiceRegistrationWndProc(window, new IntPtr(result),
+                        (win, wndProc) =>
+                        {
+                            if (registrations.ContainsKey(win))
+                            {
+                                // Reset the hWnd's WndProc incase it's lifetime is longer than this registration
+                                var reg = registrations[win];
+                                User32.SetWindowLong(win, (int)User32.WindowLongFlags.GWL_WNDPROC, reg.WndProc.ToInt32());
+                                registrations.Remove(win);
+                            }
+                        }, 
+                    registration));
             }
 
             return registrations[window];

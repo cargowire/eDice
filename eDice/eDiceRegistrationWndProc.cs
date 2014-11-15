@@ -6,20 +6,22 @@ namespace eDice
     /// A wrapper for IDiceRegistrations that knows it is attached to a specific parent WndProc
     /// and calls it appropriately as well as running an action in relation to it on dispose.
     /// </summary>
-    public class eDiceRegistrationWndProc : IDiceRegistration
+    internal class eDiceRegistrationWndProc : IDiceRegistration
     {
         private readonly IDiceRegistration registration;
-        private readonly Action<IntPtr> wndProcDisposeAction;
+        private readonly Action<IntPtr, IntPtr> windowWndProcDisposeAction;
 
         /// <summary>
         /// Initializes a new instance of the eDiceRegistrationWndProc class
         /// </summary>
+        /// <param name="window">The window</param>
         /// <param name="wndProc">The parent WndProc</param>
-        /// <param name="wndProcDisposeAction">The action to call with the WndProc on dispose</param>
+        /// <param name="windowWndProcDisposeAction">The action to call with the Window and WndProc on dispose</param>
         /// <param name="registration">The registration to wrap</param>
         public eDiceRegistrationWndProc(
+            IntPtr window,
             IntPtr wndProc,
-            Action<IntPtr> wndProcDisposeAction,
+            Action<IntPtr, IntPtr> windowWndProcDisposeAction,
             IDiceRegistration registration)
         {
             if (registration == null)
@@ -27,13 +29,14 @@ namespace eDice
                 throw new ArgumentNullException("registration");
             }
 
-            if (wndProcDisposeAction == null)
+            if (windowWndProcDisposeAction == null)
             {
-                throw new ArgumentNullException("wndProcDisposeAction");
+                throw new ArgumentNullException("windowWndProcDisposeAction");
             }
 
             this.WndProc = wndProc;
-            this.wndProcDisposeAction = wndProcDisposeAction;
+            this.Window = window;
+            this.windowWndProcDisposeAction = windowWndProcDisposeAction;
 
             this.registration = registration;
             this.registration.DiceRolled += this.RegistrationOnDiceRolled;
@@ -42,6 +45,11 @@ namespace eDice
             this.registration.DongleConnected += this.RegistrationOnDongleConnected;
             this.registration.DongleDisconnected += this.RegistrationOnDongleDisconnected;
         }
+
+        /// <summary>
+        /// The parent hWnd this registration is associated to
+        /// </summary>
+        public IntPtr Window { get; private set; }
 
         /// <summary>
         /// The parent WndProc this registration is associated to
@@ -103,7 +111,7 @@ namespace eDice
         /// </summary>
         public void Dispose()
         {
-            this.wndProcDisposeAction(this.WndProc);
+            this.windowWndProcDisposeAction(this.Window, this.WndProc);
             this.registration.Dispose();
         }
 
