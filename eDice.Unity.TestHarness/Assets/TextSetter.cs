@@ -71,5 +71,11 @@ public class TextSetter : MonoBehaviour
     void Update()
     {
         diceValue.text = string.Format("Last Dice Roll: {0}\n\nLast Activity: {1}", this.lastRoll, this.lastActivity);
+
+        if (registration != null && registration.PairedDevices.Count == 0)
+        {
+            // Attempt a pair if we haven't currently got one
+            registration.Pair();
+        }
     }
 }
