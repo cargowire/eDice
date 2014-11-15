@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 
 namespace eDice
 {
@@ -87,11 +88,30 @@ namespace eDice
         public event EventHandler<DongleEventArgs> DongleDisconnected = delegate { };
 
         /// <summary>
+        /// Gets the paired devices
+        /// </summary>
+        public ReadOnlyCollection<int> PairedDevices
+        {
+            get
+            {
+                return this.registration.PairedDevices;
+            }
+        }
+
+        /// <summary>
         /// Start a match
         /// </summary>
-        public void StartMatch()
+        public void Pair()
         {
-            this.registration.StartMatch();
+            this.registration.Pair();
+        }
+
+        /// <summary>
+        /// Ends a match
+        /// </summary>
+        public void Unpair()
+        {
+            this.registration.Unpair();
         }
 
         /// <summary>

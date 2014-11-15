@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace eDice
     public class eDiceRegistration : IDiceRegistration
     {
         private IntPtr registrationHandle;
+        private List<int> dongleIds = new List<int>();
 
         /// <summary>
         /// A registration for e-dice events
@@ -50,6 +52,17 @@ namespace eDice
         /// </summary>
         public event EventHandler<DongleEventArgs> DongleDisconnected = delegate { };
 
+        /// <summary>
+        /// Gets the paired devices
+        /// </summary>
+        public ReadOnlyCollection<int> PairedDevices 
+        {
+            get
+            {
+                return this.dongleIds.AsReadOnly();
+            } 
+        } 
+
         internal IntPtr HookMessage(int message, IntPtr wParam, IntPtr lParam)
         {
             if (message < 0)
@@ -65,20 +78,55 @@ namespace eDice
             return new IntPtr(User32.CallNextHookEx(IntPtr.Zero, message, wParam, lParam));
         }
 
-        public void StartMatch()
+        public void Pair()
         {
-            var structSize = Marshal.SizeOf(typeof(EDICE_START_PAIRING_INFOR));
-            EDICE_START_PAIRING_INFOR startInfo;
-		    startInfo.id = -1;
+            IntPtr startInfoPtr = IntPtr.Zero;
+            try
+            {
+                var structSize = Marshal.SizeOf(typeof(EDICE_START_PAIRING_INFOR));
+                EDICE_START_PAIRING_INFOR startInfo;
+                startInfo.id = -1;
 
-            IntPtr startInfoPtr = Marshal.AllocHGlobal(structSize);
-            Marshal.StructureToPtr(startInfo, startInfoPtr, false);
+                startInfoPtr = Marshal.AllocHGlobal(structSize);
+                Marshal.StructureToPtr(startInfo, startInfoPtr, false);
 
-            Vrlib.SetInteractionState(
-                this.registrationHandle,
-                (uint)EDICE_STATE_TYPE.EDICE_START_PAIRING,
-                startInfoPtr,
-                (uint)structSize);
+                Vrlib.SetInteractionState(
+                    this.registrationHandle,
+                    (uint)EDICE_STATE_TYPE.EDICE_START_PAIRING,
+                    startInfoPtr,
+                    (uint)structSize);
+            }
+            finally 
+            {
+                Marshal.FreeHGlobal(startInfoPtr);
+            }
+        }
+
+        public void Unpair()
+        {
+            foreach (int dongleId in this.dongleIds)
+            {
+                IntPtr endInfoPtr = IntPtr.Zero;
+                try
+                {
+                    var structSize = Marshal.SizeOf(typeof(EDICE_END_PAIRING_INFOR));
+                    EDICE_END_PAIRING_INFOR endInfo;
+                    endInfo.id = dongleId;
+
+                    endInfoPtr = Marshal.AllocHGlobal(structSize);
+                    Marshal.StructureToPtr(endInfo, endInfoPtr, false);
+
+                    Vrlib.SetInteractionState(
+                        this.registrationHandle,
+                        (uint)EDICE_STATE_TYPE.EDICE_END_PAIRING,
+                        endInfoPtr,
+                        (uint)structSize);
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(endInfoPtr);
+                }
+            }
         }
 
         public bool HandleMessage(int message, IntPtr wParam, IntPtr lParam)
@@ -168,11 +216,11 @@ namespace eDice
                             }
                         case (uint)EDICE_STATE_TYPE.EDICE_CONNECT:
                             {
-                                var ids = this.GetConnectionInformation<EDICE_DISCONNECT_INFOR>(dataPtr);
+                                this.dongleIds = this.GetConnectionInformation<EDICE_DISCONNECT_INFOR>(dataPtr);
 
                                 this.DongleConnected(
                                     this,
-                                    new DongleEventArgs(ids));
+                                    new DongleEventArgs(this.dongleIds));
                                 break;
                             }
                         case (uint)EDICE_STATE_TYPE.EDICE_DISCONNECT:

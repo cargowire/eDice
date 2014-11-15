@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace eDice
 {
@@ -39,9 +40,19 @@ namespace eDice
         event EventHandler<DongleEventArgs> DongleDisconnected;
 
         /// <summary>
+        /// Gets the paired devices
+        /// </summary>
+        ReadOnlyCollection<int> PairedDevices { get; } 
+
+        /// <summary>
         /// Start a match
         /// </summary>
-        void StartMatch();
+        void Pair();
+
+        /// <summary>
+        /// Ends a match
+        /// </summary>
+        void Unpair();
 
         /// <summary>
         /// Handle a WndProc message
