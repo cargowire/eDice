@@ -80,25 +80,29 @@ namespace eDice
 
         public void Pair()
         {
-            IntPtr startInfoPtr = IntPtr.Zero;
-            try
+            var dongles = (this.dongleIds != null && this.dongleIds.Any()) ? this.dongleIds : new List<int>() { -1 };
+            foreach (var dongleId in dongles)
             {
-                var structSize = Marshal.SizeOf(typeof(EDICE_START_PAIRING_INFOR));
-                EDICE_START_PAIRING_INFOR startInfo;
-                startInfo.id = -1;
+                IntPtr startInfoPtr = IntPtr.Zero;
+                try
+                {
+                    var structSize = Marshal.SizeOf(typeof(EDICE_START_PAIRING_INFOR));
+                    EDICE_START_PAIRING_INFOR startInfo;
+                    startInfo.id = dongleId;
 
-                startInfoPtr = Marshal.AllocHGlobal(structSize);
-                Marshal.StructureToPtr(startInfo, startInfoPtr, false);
+                    startInfoPtr = Marshal.AllocHGlobal(structSize);
+                    Marshal.StructureToPtr(startInfo, startInfoPtr, false);
 
-                Vrlib.SetInteractionState(
-                    this.registrationHandle,
-                    (uint)EDICE_STATE_TYPE.EDICE_START_PAIRING,
-                    startInfoPtr,
-                    (uint)structSize);
-            }
-            finally 
-            {
-                Marshal.FreeHGlobal(startInfoPtr);
+                    Vrlib.SetInteractionState(
+                        this.registrationHandle,
+                        (uint)EDICE_STATE_TYPE.EDICE_START_PAIRING,
+                        startInfoPtr,
+                        (uint)structSize);
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(startInfoPtr);
+                }
             }
         }
 
